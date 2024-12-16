@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]> <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>VR/AR Brief Timeline</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+        <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: "Space Grotesk", sans-serif;
+
+            }
+            .page {
+                display: grid;
+                place-items: center;
+            }
+            .footer {
+                position: absolute;
+                bottom: 0;
+            }
+            #timeline-embed {
+                width: 100%;
+                height: 600px;
+                margin-top: 50px;
+            }
+        </style>
+
+        <!-- 1 -->
+        <link title="timeline-styles" rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css">
+
+        <!-- 2 -->
+        <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]> <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p> <![endif]-->
+        <div class="page">
+            <div>
+                <h1>Historical Overview of HCI and VR/AR</h1>
+                <p>This timeline shows simplyfied HCI and VR/AR milestones.
+                </p>
+
+            </div>
+            <div id='timeline-embed'></div>
+
+            <div class="footer">
+                <p>Last updated December 2024. Made with Timeline.js.</p>
+            </div>
+        </div>
+        <!-- 3 -->
+        <script type="text/javascript">
+            // The TL.Timeline constructor takes at least two arguments:
+            // the id of the Timeline container (no '#'), and
+            // the URL to your JSON data file or Google spreadsheet.
+            // the id must refer to an element "above" this code,
+            // and the element must have CSS styling to give it width and height
+            // optionally, a third argument with configuration options can be passed.
+            // See below for more about options.
+            // Configuration object for Timeline.js
+            // Configuration object for Timeline.js
+            var config = {
+                hash_bookmark: false,
+                initial_zoom: 0, // Start zoomed out
+                scale_factor: 2, // Reduces the spacing between events
+                start_at_slide: 1, // Start at the beginning
+                initial_zoom: 'fit', // Fit all events in view
+                offset_timezone: false, // Prevent timezone adjustments
+                // Additional settings for better distribution
+                scale_factor: 0.5, // Reduced to spread events more evenly
+            };
+
+            // Initialize the timeline
+            var timeline = new TL.Timeline('timeline-embed', 'https://docs.google.com/spreadsheets/d/1_O_3Db9oU8s0RZKHuiyu7YQfBfvfiZVwJSU-qFQ6dKQ/edit?gid=0#gid=0', config);
+
+            // Modify content after timeline is loaded
+
+            timeline.on('loaded', function () {
+                // Get all slides
+                console.log(timeline._storyslider._slides);
+                var slides = timeline._storyslider._slides;
+
+                // Modify each slide
+                slides.forEach(function (slide) {
+                    // Access the data object of the slide
+                    if (slide._text.data && slide.data.start_date.data.year) {
+                        // Modify headline
+                        var year = slide.data.start_date.data.year;
+                        var yeardiff = getYearDifference(year);
+                        // Modify text content
+                        if (slide._text.data.text) {
+                            slide._text.data.text += "<br><small>" + yeardiff.message + "</small>";
+                            // Force update the DOM element
+                            var textElement = slide
+                                ._el
+                                .container
+                                .querySelector('.tl-text-content');
+                            if (textElement) {
+                                textElement.innerHTML = slide._text.data.text;
+                            }
+                        }
+                    }
+                });
+
+                // Modify markers in the timeline navigation
+
+                if (timeline._timenav && timeline._timenav._markers) {
+                    timeline
+                        ._timenav
+                        ._markers
+                        .forEach(function (marker) {
+
+                            console.log(marker);
+                            var group = marker.data.group;
+                            var vrarmarker = "ᯅ ";
+                            var varargroup = "VR/AR";
+                            var othermarker = "";
+
+                            // Access the marker's text element
+                            var markerText = marker
+                                ._el
+                                .content
+                                .querySelector('.tl-headline');
+
+                            if (markerText && markerText.innerHTML) {
+                                if (group == varargroup) {
+                                    markerText.innerHTML = vrarmarker + markerText.innerHTML;
+
+                                } else {
+                                    markerText.innerHTML = othermarker + markerText.innerHTML;
+
+                                }
+
+                            }
+
+                            // Add custom styling
+                            marker
+                                ._el
+                                .container
+                                .classList
+                                .add('custom-marker');
+                        });
+                }
+
+                // Force a redraw
+                timeline.updateDisplay();
+            });
+
+            function getYearDifference(year) {
+                // Get current year
+                const currentYear = new Date().getFullYear();
+
+                // Calculate absolute difference to handle both past and future years
+                const difference = Math.abs(currentYear - year);
+
+                // Determine if the given year is in the past or future
+                const isPast = year < currentYear;
+
+                return {
+                    difference,
+                    isPast,
+                    message: `${difference} year${difference !== 1
+                        ? 's'
+                        : ''} ${isPast
+                            ? 'ago'
+                            : 'from now'}`
+                };
+            }
+        </script>
+
+    </body>
+</html>
